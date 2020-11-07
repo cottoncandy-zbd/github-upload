@@ -1,0 +1,138 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>クラス宣言</title>
+<link rel="stylesheet" href="common.css" type="text/css" />
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+<div id="main">
+
+<h1>C++演習問題用テキストの様式</h1>
+<br/>
+<div class="SourceCode">
+ソースコードは、この枠に囲まれて記述される</div>
+<br/>
+<div class="Point">要点は、この枠に囲まれてこの書式で記述される</div>
+<br/>
+<div class="Caution">注意点は、この書式で記述される</div>
+<br/>
+<div class="CommandLine">ターミナル上でのコマンド入力や表示結果は、この書式で記述される</div>
+<br/>
+<div class="Exercise">演習課題と練習問題は、この枠に囲まれてこの書式で記述される</div>
+
+<br />
+
+<h1>クラス宣言</h1>
+<h2>C言語の構造体からC＋＋のクラス宣言へ</h2>
+
+例として、円を描画するプログラムを考える。<br />
+
+<h3>Ｃ言語の構造体として実装した場合：</h3>
+<pre class="SourceCode">
+<code>#include &lt;stdio.h&gt;
+
+struct Circle { /* 円の構造体 */
+	int x, y; /* 中心座標 */
+	int rad; /* 半径 */
+};
+
+/* 円の描画関数 */
+void drawCircle (struct Circle circ) {
+	printf ("位置(%d,%d)に半径%dの円を描画\n", circ.x, circ.y, circ.rad);
+}
+
+int main () {
+	struct Circle circ; /* 円 */
+	int i;
+	for (i = 0; i &lt; 10; i++) {
+		circ.x = i + 10;
+		circ.y = 2 * i + 10;
+		circ.rad = rand () % 10; /* 半径は乱数で決定 */
+		drawCircle (circ); /* 描画の実行 */
+	}
+}
+</code></pre>
+
+<h3>C＋＋言語のクラス宣言への変換</h3>
+<p>
+円を描画するという機能は、円固有のものと考え、構造体の中に関数を含めてしまう。
+</p>
+
+<u>クラス宣言の場合（Circle.h）
+<i>注： // はコメント記号であり、以後の改行までの記号はコンパイル時に無視される</i>
+</u>
+<pre class="SourceCode">
+<code>#include &lt;stdio.h&gt;
+
+class Circle { // クラスの名前を宣言
+public: // 以後のメンバを公開
+	int x, y; // 中心座標：メンバ変数
+	int rad; // 半径：メンバ変数
+
+	Circle () { x = y = 0; rad = 10; } // 構築子 
+	Circle (int cx, int cy, int r) {x = cx; y = cy; rad = r; } // 違う形式の構築子
+	~Circle () {} // 消滅子（メモリ領域解放以外の処理は行わない）
+
+	// 以後、メンバ関数
+	void draw () { printf ("位置(%d,%d)に半径%dの円を描画\n", x, y, rad); } // 描画関数（のつもり）
+}; // ここで、セミコロンを忘れずに付ける！
+</code></pre>
+
+<u>使用例その１（main1.cpp）</u>
+
+<pre class="SourceCode">
+<code>#include "Circle.h" // 上記のヘッダファイルを読み込む
+
+int main () {
+	Circle circ; // 円クラスの実体（インスタンス）の生成。引数がない場合は、() を省略できる。
+	for (int i = 0; i &lt; 10; i++) {
+		circ.x = i + 10; circ.y =  2 * i + 10; // 位置の設定
+		circ.rad = 10 * (i+1); // 半径の設定
+		circ.draw (); // 描画
+	}
+}
+</code></pre>
+
+<u>使用例その２（main2.cpp）：Circleクラスのインスタンスを動的に生成する</u>
+<pre class="SourceCode">
+<code>#include "Circle.h"
+
+int main () {
+	for (int i = 0; i &lt; 10; i++) {
+		Circle *circ = new Circle (10*(i+1), 5*(i+2), 5*i+5); // 値を代入しながらの new を使用した生成
+		circ->draw (); // 描画
+		delete circ;
+	}
+}
+</code></pre>
+
+<h3>ポイント（クラス宣言）：</h3>
+<ul class="Point">
+<li>「クラス」とは、変数の型を定義するものである。</li>
+<li>クラスによって指定される「型」とは、メンバ変数とメンバ関数の集まりである。</li>
+<li>クラスの型に基づいて、メモリ上で値を読み書きできる様に実体化された変数を「インスタンス」と呼ぶ。</li>
+<li>オブジェクト指向言語の「オブジェクト」とは、この型としての「クラス」と変数として実体化された「インスタンス」の総称である。</li>
+<li>クラスの実体（インスタンス）を生成するための関数は構築子（コンストラクタ）と呼ばれ、クラス名と同じ名前で作成する。</li>
+<li>構築子は引数の異なる形式で複数種類を宣言できる。</li>
+<li>クラスの実体（インスタンス）をメモリから廃棄する関数は消滅子（デストラクタ）と呼ばれ、~にクラス名と同じ名前を付ける。</li>
+</ul>
+
+<h2>Exercise (No.1)</h2>
+<div class="Exercise">
+<p>
+Rewrite Circle.h, main1.cpp to use getter and setter. Rewrite Makefile to compile Circle.h, main1.cpp. 
+</p>
+</div>
+
+<h2>提出課題 (その1)</h2>
+<div class="Exercise">
+<p>
+getter, setterを用いるようにCircle.h, main1.cppを修正せよ。また、Circle.h, main1.cppをコンパイルできるようにMakefileを修正せよ。
+</p>
+</div>
+
+</body>
+</html>
